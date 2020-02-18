@@ -1,8 +1,10 @@
-import re
+import re as regexp
 import gpt_2_simple as gpt2
 import os
 import requests
-import pyttsx3 as text_to_speech
+from gtts import gTTS as TextToSpeech
+import pygame
+import time
 
 
 class UnicornAI:
@@ -41,13 +43,18 @@ class UnicornAI:
         self.reset_session()
         if log_function:
             log_function("Starting voice...")
-        self.voice = text_to_speech.init()
+        pygame.mixer.init()
 
-    def say_sentences(self, text_to_speak):
-        complete_sentences = re.split("[.!?]", text_to_speak)[:-1]
+    @staticmethod
+    def say_sentences(text_to_speak):
+        complete_sentences = regexp.split("[.!?]", text_to_speak)[:-1]
         complete_sentences = ". ".join(complete_sentences)
-        self.voice.say(complete_sentences)
-        self.voice.runAndWait()
+        speech = TextToSpeech(text=complete_sentences, lang=UnicornAI.language)
+        seconds = time.time()
+        filename = f"tmp/{seconds}.mp3"
+        speech.save(filename)
+        pygame.mixer.music.load(filename)
+        pygame.mixer.music.play()
 
     def generate_text(self, prefix=None):
         return gpt2.generate(

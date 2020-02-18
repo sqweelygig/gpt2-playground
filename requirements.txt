@@ -3,4 +3,5 @@ regex~=2017.4
 requests~=2.21
 tqdm~=4.31
 tensorflow~=1.15
-pyttsx3~=2.81
+gtts~=2.1
+pygame~=1.9
