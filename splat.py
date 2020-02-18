@@ -50,7 +50,7 @@ class UnicornAI:
         complete_sentences = regexp.split("[.!?]", text_to_speak)[:-1]
         complete_sentences = ". ".join(complete_sentences)
         speech = TextToSpeech(text=complete_sentences, lang=UnicornAI.language)
-        seconds = time.time()
+        seconds = int(time.time())
         filename = f"tmp/{seconds}.mp3"
         speech.save(filename)
         pygame.mixer.music.load(filename)
