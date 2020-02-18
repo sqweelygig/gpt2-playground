@@ -1,55 +1,77 @@
+import re
 import gpt_2_simple as gpt2
 import os
 import requests
 import pyttsx3 as text_to_speech
 
-language = "en"
-model_name = "medium"
-tuning_name = "frankenstein"
-starter_text = "Last Friday I"
 
-models_available = {
-    "small": "124M",
-    "medium": "355M",
-    "large": "774M",
-    "huge": "1558M",
-}
-tunings_available = {
-    "shakespeare": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
-    "fortune-cookies": "https://raw.githubusercontent.com/reggi/fortune-cookie/master/fortune-cookies.txt",
-    "frankenstein": "https://www.gutenberg.org/files/84/84-0.txt"
-}
+class UnicornAI:
+    language = "en"
+    models_available = {
+        "small": "124M",
+        "medium": "355M",
+        "large": "774M",
+        "huge": "1558M",
+    }
+    tunings_available = {
+        "shakespeare": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
+        "fortune-cookies": "https://raw.githubusercontent.com/reggi/fortune-cookie/master/fortune-cookies.txt",
+        "frankenstein": "https://www.gutenberg.org/files/84/84-0.txt"
+    }
 
-model_dir = models_available[model_name]
-if not os.path.isdir(os.path.join("models", model_dir)):
-    print(f"Downloading {model_name} model...")
-    gpt2.download_gpt2(model_name=model_dir)
+    def __init__(self, model="medium", tuning="frankenstein", starter_text="Last Friday I", log_function=None):
+        self.run_name = f"{tuning}-{model}"
+        self.prefix = starter_text
+        self.model = UnicornAI.models_available[model]
+        self.brain = None
+        if not os.path.isdir(os.path.join("models", self.model)):
+            if log_function:
+                log_function(f"Downloading {model} model...")
+            gpt2.download_gpt2(model_name=self.model)
+        self.tuning_path = os.path.join("tunings", f"{tuning}.txt")
+        if not os.path.isfile(self.tuning_path):
+            if log_function:
+                log_function(f"Downloading {tuning} library...")
+            tuning_url = UnicornAI.tunings_available[tuning]
+            tuning_text = requests.get(tuning_url).text
+            with open(self.tuning_path, "w") as file:
+                file.write(tuning_text)
+        if log_function:
+            log_function("Starting brain...")
+        self.reset_session()
+        if log_function:
+            log_function("Starting voice...")
+        self.voice = text_to_speech.init()
 
-tuning_file = os.path.join("tunings", f"{tuning_name}.txt")
-if not os.path.isfile(tuning_file):
-    print(f"Downloading {tuning_name} library...")
-    tuning_url = tunings_available[tuning_name]
-    data = requests.get(tuning_url)
-    with open(tuning_file, 'w') as f:
-        f.write(data.text)
+    def say_sentences(self, text_to_speak):
+        complete_sentences = re.split("[.!?]", text_to_speak)[:-1]
+        complete_sentences = ". ".join(complete_sentences)
+        self.voice.say(complete_sentences)
+        self.voice.runAndWait()
+
+    def generate_text(self, prefix=None):
+        return gpt2.generate(
+            self.brain,
+            prefix=prefix or self.prefix, length=100, run_name=self.run_name, return_as_list=True
+        )[0]
+
+    def reset_session(self):
+        if self.brain is not None:
+            gpt2.reset_session(self.brain)
+        self.brain = gpt2.start_tf_sess()
+        gpt2.finetune(
+            self.brain, self.tuning_path,
+            model_name=self.model, steps=1, overwrite=True, run_name=self.run_name
+        )
 
 
-def say_sentences(text):
-    voice = text_to_speech.init()
-    complete_sentences = text.split(".")[:-1]
-    text_to_speak = ". ".join(complete_sentences)
-    voice.say(text_to_speak)
-    voice.runAndWait()
-
-
-while True:
-    sess = gpt2.start_tf_sess()
-    run_name = f"{tuning_name}-{model_name}"
-    print(f"Tuning {run_name}...")
-    gpt2.finetune(sess, tuning_file, model_name=model_dir, steps=1, overwrite=True, run_name=run_name)
-    print(f"Generating text using {run_name}...")
-    generated_text = gpt2.generate(sess, prefix=starter_text, length=128, run_name=run_name, return_as_list=True)[0]
-    print(generated_text)
-    print(f"Speaking text...")
-    say_sentences(generated_text)
-    gpt2.reset_session(sess)
+if __name__ == "__main__":
+    unicorn = UnicornAI(log_function=lambda x: print(x))
+    while True:
+        print(f"Generating text using {unicorn.run_name}...")
+        generated_text = unicorn.generate_text()
+        print("Speaking text...")
+        print(generated_text)
+        unicorn.say_sentences(generated_text)
+        print("Resetting session...")
+        unicorn.reset_session()
