@@ -5,6 +5,3 @@
 # Generated Files
 __pycache__
 .mypy_cache/
-models/
-checkpoint/
-tunings/
