@@ -23,12 +23,11 @@ class UnicornAI:
 
     def __init__(self, model="small", tuning="frankenstein", log_function=lambda x: print(x)):
         self.run_name = f"{tuning}-{model}"
-        self.model = UnicornAI.models_available[model]
-        self.brain = None
+        self.model_name = UnicornAI.models_available[model]
         self.tuning_path = os.path.join("tunings", f"{tuning}.txt")
-        if not os.path.isdir(os.path.join("models", self.model)):
+        if not os.path.isdir(os.path.join("models", self.model_name)):
             log_function(f"Downloading {model} model...")
-            gpt2.download_gpt2(model_name=self.model)
+            gpt2.download_gpt2(model_name=self.model_name)
         if not os.path.isfile(self.tuning_path):
             log_function(f"Downloading {tuning} library...")
             tuning_url = UnicornAI.tunings_available[tuning]
@@ -36,12 +35,12 @@ class UnicornAI:
             with open(self.tuning_path, "w") as file:
                 file.write(tuning_text)
         log_function("Starting brain...")
-        self.reset_session()
+        self.fine_tune()
         log_function("Starting voice...")
         pygame.mixer.init()
 
     @staticmethod
-    def say_sentences(text_to_speak):
+    def say_sentences(text_to_speak="Hello world!"):
         speech = TextToSpeech(text=text_to_speak, lang=UnicornAI.language)
         seconds = int(time.time())
         filename = f"tmp/{seconds}.mp3"
@@ -49,26 +48,27 @@ class UnicornAI:
         pygame.mixer.music.load(filename)
         pygame.mixer.music.play()
 
-    def generate_text(self, prefix="Last Friday I", length=50):
-        return gpt2.generate(self.brain, prefix=prefix, length=length, run_name=self.run_name, return_as_list=True)[0]
+    def generate(self, prefix="Last Friday I", length=50):
+        brain = gpt2.start_tf_sess()
+        gpt2.load_gpt2(brain, run_name=self.run_name)
+        text = gpt2.generate(brain, prefix=prefix, length=length, run_name=self.run_name, return_as_list=True)[0]
+        gpt2.reset_session(brain)
+        return text
 
-    def reset_session(self):
-        if self.brain is not None:
-            gpt2.reset_session(self.brain)
-        self.brain = gpt2.start_tf_sess()
+    def fine_tune(self):
+        brain = gpt2.start_tf_sess()
         gpt2.finetune(
-            self.brain, self.tuning_path,
-            model_name=self.model, steps=1, overwrite=True, run_name=self.run_name
+            brain, self.tuning_path,
+            model_name=self.model_name, steps=1, overwrite=True, run_name=self.run_name
         )
+        gpt2.reset_session(brain)
 
 
 if __name__ == "__main__":
     unicorn = UnicornAI()
-    while True:
-        print(f"Generating text using {unicorn.run_name}...")
-        generated_text = unicorn.generate_text()
-        print("Speaking text...")
-        print(generated_text)
-        unicorn.say_sentences(generated_text)
-        print("Resetting session...")
-        unicorn.reset_session()
+    print(f"Generating text using {unicorn.run_name}...")
+    generated_text = unicorn.generate()
+    print("Speaking text...")
+    print(generated_text)
+    unicorn.say_sentences(generated_text)
+    time.sleep(60)
