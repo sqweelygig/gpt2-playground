@@ -21,27 +21,23 @@ class UnicornAI:
         "shakespeare": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
     }
 
-    def __init__(self, model="medium", tuning="frankenstein", log_function=None):
+    def __init__(self, model="medium", tuning="frankenstein", log_function=lambda x: print(x)):
         self.run_name = f"{tuning}-{model}"
         self.model = UnicornAI.models_available[model]
         self.brain = None
-        if not os.path.isdir(os.path.join("models", self.model)):
-            if log_function:
-                log_function(f"Downloading {model} model...")
-            gpt2.download_gpt2(model_name=self.model)
         self.tuning_path = os.path.join("tunings", f"{tuning}.txt")
+        if not os.path.isdir(os.path.join("models", self.model)):
+            log_function(f"Downloading {model} model...")
+            gpt2.download_gpt2(model_name=self.model)
         if not os.path.isfile(self.tuning_path):
-            if log_function:
-                log_function(f"Downloading {tuning} library...")
+            log_function(f"Downloading {tuning} library...")
             tuning_url = UnicornAI.tunings_available[tuning]
             tuning_text = requests.get(tuning_url).text
             with open(self.tuning_path, "w") as file:
                 file.write(tuning_text)
-        if log_function:
-            log_function("Starting brain...")
+        log_function("Starting brain...")
         self.reset_session()
-        if log_function:
-            log_function("Starting voice...")
+        log_function("Starting voice...")
         pygame.mixer.init()
 
     @staticmethod
@@ -67,7 +63,7 @@ class UnicornAI:
 
 
 if __name__ == "__main__":
-    unicorn = UnicornAI(log_function=lambda x: print(x))
+    unicorn = UnicornAI()
     while True:
         print(f"Generating text using {unicorn.run_name}...")
         generated_text = unicorn.generate_text()
