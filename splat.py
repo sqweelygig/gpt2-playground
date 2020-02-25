@@ -21,9 +21,8 @@ class UnicornAI:
         "shakespeare": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
     }
 
-    def __init__(self, model="medium", tuning="frankenstein", starter_text="Last Friday I", log_function=None):
+    def __init__(self, model="medium", tuning="frankenstein", log_function=None):
         self.run_name = f"{tuning}-{model}"
-        self.prefix = starter_text
         self.model = UnicornAI.models_available[model]
         self.brain = None
         if not os.path.isdir(os.path.join("models", self.model)):
@@ -54,11 +53,8 @@ class UnicornAI:
         pygame.mixer.music.load(filename)
         pygame.mixer.music.play()
 
-    def generate_text(self, prefix=None):
-        return gpt2.generate(
-            self.brain,
-            prefix=prefix or self.prefix, length=100, run_name=self.run_name, return_as_list=True
-        )[0]
+    def generate_text(self, prefix="Last Friday I", length=50):
+        return gpt2.generate(self.brain, prefix=prefix, length=length, run_name=self.run_name, return_as_list=True)[0]
 
     def reset_session(self):
         if self.brain is not None:
