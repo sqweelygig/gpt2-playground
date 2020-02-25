@@ -21,7 +21,7 @@ class UnicornAI:
         "shakespeare": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
     }
 
-    def __init__(self, model="medium", tuning="frankenstein", log_function=lambda x: print(x)):
+    def __init__(self, model="small", tuning="frankenstein", log_function=lambda x: print(x)):
         self.run_name = f"{tuning}-{model}"
         self.model = UnicornAI.models_available[model]
         self.brain = None
