@@ -1,4 +1,3 @@
-import re as regexp
 import gpt_2_simple as gpt2
 import os
 import requests
@@ -16,9 +15,10 @@ class UnicornAI:
         "huge": "1558M",
     }
     tunings_available = {
-        "shakespeare": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
         "fortune-cookies": "https://raw.githubusercontent.com/reggi/fortune-cookie/master/fortune-cookies.txt",
-        "frankenstein": "https://www.gutenberg.org/files/84/84-0.txt"
+        "frankenstein": "https://www.gutenberg.org/files/84/84-0.txt",
+        "pride": "https://www.gutenberg.org/files/1342/1342-0.txt",
+        "shakespeare": "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt",
     }
 
     def __init__(self, model="medium", tuning="frankenstein", starter_text="Last Friday I", log_function=None):
