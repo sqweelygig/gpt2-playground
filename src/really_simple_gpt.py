@@ -1,9 +1,6 @@
 import gpt_2_simple as gpt2
 import os
 import requests
-from gtts import gTTS as TextToSpeech
-import pygame
-import time
 
 
 class ReallySimpleGPT:
@@ -27,7 +24,6 @@ class ReallySimpleGPT:
         self.log_function = log_function
         self.download_model()
         self.download_tuning()
-        pygame.mixer.init()
 
     @property
     def model_name(self):
@@ -54,19 +50,7 @@ class ReallySimpleGPT:
             with open(self.tuning_path, "w") as file:
                 file.write(tuning_text)
 
-    def say_sentences(self, text_to_speak="Hello world!"):
-        self.log_function("* Speaking...")
-        self.log_function("\"\"\"")
-        self.log_function(text_to_speak)
-        self.log_function("\"\"\"")
-        speech = TextToSpeech(text=text_to_speak, lang=ReallySimpleGPT.language)
-        seconds = int(time.time())
-        filename = f"tmp/{seconds}.mp3"
-        speech.save(filename)
-        pygame.mixer.music.load(filename)
-        pygame.mixer.music.play()
-
-    def generate(self, prefix="Last Friday I", length=50):
+    def generate(self, prefix="I once", length=100):
         self.log_function("* Generating text...")
         self.log_function(f"  * {self.model_description} language model tuned towards {self.tuning_description}.")
         brain = gpt2.start_tf_sess()
@@ -88,11 +72,3 @@ class ReallySimpleGPT:
             model_name=self.model_name, steps=steps, run_name=self.run_name
         )
         gpt2.reset_session(brain)
-
-
-if __name__ == "__main__":
-    really_simple_gpt = ReallySimpleGPT()
-    while True:
-        generated_text = really_simple_gpt.generate()
-        really_simple_gpt.say_sentences(generated_text)
-        really_simple_gpt.fine_tune()
