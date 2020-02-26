@@ -6,7 +6,7 @@ import pygame
 import time
 
 
-class UnicornAI:
+class ReallySimpleGPT:
     language = "en"
     models_available = {
         "small": "124M",
@@ -27,12 +27,11 @@ class UnicornAI:
         self.log_function = log_function
         self.download_model()
         self.download_tuning()
-        log_function("Starting voice...")
         pygame.mixer.init()
 
     @property
     def model_name(self):
-        return UnicornAI.models_available[self.model_description]
+        return ReallySimpleGPT.models_available[self.model_description]
 
     @property
     def tuning_path(self):
@@ -50,7 +49,7 @@ class UnicornAI:
     def download_tuning(self):
         if not os.path.isfile(self.tuning_path):
             self.log_function(f"* Downloading {self.tuning_description} library...")
-            tuning_url = UnicornAI.tunings_available[self.tuning_description]
+            tuning_url = ReallySimpleGPT.tunings_available[self.tuning_description]
             tuning_text = requests.get(tuning_url).text
             with open(self.tuning_path, "w") as file:
                 file.write(tuning_text)
@@ -60,7 +59,7 @@ class UnicornAI:
         self.log_function("\"\"\"")
         self.log_function(text_to_speak)
         self.log_function("\"\"\"")
-        speech = TextToSpeech(text=text_to_speak, lang=UnicornAI.language)
+        speech = TextToSpeech(text=text_to_speak, lang=ReallySimpleGPT.language)
         seconds = int(time.time())
         filename = f"tmp/{seconds}.mp3"
         speech.save(filename)
@@ -81,7 +80,7 @@ class UnicornAI:
         gpt2.reset_session(brain)
         return text
 
-    def fine_tune(self, steps=1):
+    def fine_tune(self, steps=100):
         self.log_function(f"* Fine tuning towards {self.tuning_description}...")
         brain = gpt2.start_tf_sess()
         gpt2.finetune(
@@ -92,7 +91,8 @@ class UnicornAI:
 
 
 if __name__ == "__main__":
-    unicorn = UnicornAI()
-    generated_text = unicorn.generate()
-    unicorn.say_sentences(generated_text)
-    unicorn.fine_tune()
+    really_simple_gpt = ReallySimpleGPT()
+    while True:
+        generated_text = really_simple_gpt.generate()
+        really_simple_gpt.say_sentences(generated_text)
+        really_simple_gpt.fine_tune()
