@@ -6,3 +6,4 @@ tensorflow~=1.15
 gtts~=2.1
 pygame~=1.9
 flask~=1.1
+gpt-2-simple~=0.7.1
