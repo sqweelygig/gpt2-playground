@@ -69,6 +69,6 @@ class ReallySimpleGPT:
         brain = gpt2.start_tf_sess()
         gpt2.finetune(
             brain, self.tuning_path,
-            model_name=self.model_name, steps=steps, run_name=self.run_name
+            model_name=self.model_name, steps=steps, run_name=self.run_name, overwrite=True
         )
         gpt2.reset_session(brain)
