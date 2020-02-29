@@ -7,11 +7,11 @@ from src.really_simple_gpt import ReallySimpleGPT
 
 
 if __name__ == "__main__":
-    run_continuously = "--continuous" in sys.argv or "-c" in sys.argv
-    should_fine_tune = "--fine-tune" in sys.argv or "-ft" in sys.argv
-    should_generate = "--generate" in sys.argv or "-g" in sys.argv
-    should_speak = "--speak" in sys.argv or "-s" in sys.argv
     try:
+        run_continuously = "--continuous" in sys.argv or "-c" in sys.argv
+        should_fine_tune = "--fine-tune" in sys.argv or "-ft" in sys.argv
+        should_generate = "--generate" in sys.argv or "-g" in sys.argv
+        should_speak = "--speak" in sys.argv or "-s" in sys.argv
         pygame.mixer.init()
         really_simple_gpt = ReallySimpleGPT()
         first_run = True
