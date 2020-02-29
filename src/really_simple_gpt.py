@@ -23,7 +23,6 @@ class ReallySimpleGPT:
         self.model_description = model
         self.log_function = log_function
         self.download_model()
-        self.download_tuning()
 
     @property
     def model_name(self):
@@ -65,6 +64,7 @@ class ReallySimpleGPT:
         return text
 
     def fine_tune(self, steps=100):
+        self.download_tuning()
         self.log_function(f"* Fine tuning towards {self.tuning_description}...")
         brain = gpt2.start_tf_sess()
         gpt2.finetune(
