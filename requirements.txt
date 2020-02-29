@@ -5,3 +5,4 @@ tqdm~=4.31
 tensorflow~=1.15
 gtts~=2.1
 pygame~=1.9
+flask~=1.1
